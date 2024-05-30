@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple App</title>
+</head>
+<body>
+    <h1>Message Board</h1>
+    <form id="messageForm">
+        <input type="text" id="messageContent" placeholder="Enter a message">
+        <button type="submit">Send</button>
+    </form>
+    <ul id="messagesList"></ul>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/parse/2.19.0/parse.min.js"></script>
+    <script>
+        // Initialize Parse
+        Parse.initialize("YOUR_APP_ID", "YOUR_JAVASCRIPT_KEY");
+        Parse.serverURL = 'https://parseapi.back4app.com/';
+
+        const messageForm = document.getElementById('messageForm');
+        const messageContent = document.getElementById('messageContent');
+        const messagesList = document.getElementById('messagesList');
+
+        // Function to fetch and display messages
+        const fetchMessages = async () => {
+            const Message = Parse.Object.extend('Message');
+            const query = new Parse.Query(Message);
+            const results = await query.find();
+            messagesList.innerHTML = '';
+            results.forEach(result => {
+                const li = document.createElement('li');
+                li.textContent = result.get('content');
+                messagesList.appendChild(li);
+            });
+        };
+
+        // Fetch messages on load
+        fetchMessages();
+
+        // Event listener for form submission
+        messageForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const Message = Parse.Object.extend('Message');
+            const message = new Message();
+            message.set('content', messageContent.value);
+            await message.save();
+            messageContent.value = '';
+            fetchMessages();
+        });
+    </script>
+</body>
+</html>
+
